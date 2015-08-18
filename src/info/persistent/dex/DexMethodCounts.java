@@ -43,6 +43,10 @@ public class DexMethodCounts {
         NavigableMap<String, Node> children = new TreeMap<String, Node>();
 
         void output(String indent) {
+            output(out, indent);
+        }
+
+        void output(PrintStream out, String indent) {
             if (indent.length() == 0) {
                 out.println("<root>: " + count);
                 overallCount += count;
@@ -51,7 +55,7 @@ public class DexMethodCounts {
             for (String name : children.navigableKeySet()) {
                 Node child = children.get(name);
                 out.println(indent + name + ": " + child.count);
-                child.output(indent);
+                child.output(out, indent);
             }
         }
     }

@@ -19,8 +19,10 @@ import com.android.dexdeps.DexDataException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +36,7 @@ public class Main {
     private String packageFilter;
     private int maxDepth = Integer.MAX_VALUE;
     private DexMethodCounts.Filter filter = DexMethodCounts.Filter.ALL;
+    private String outputFileName;
 
     public static void main(String[] args) {
         Main main = new Main();
@@ -43,6 +46,12 @@ public class Main {
     void run(String[] args) {
         try {
             String[] inputFileNames = parseArgs(args);
+            PrintStream reportOutput = System.out;
+            if (outputFileName != null && !outputFileName.isEmpty()) {
+                reportOutput =
+                    new PrintStream(new FileOutputStream(new File(outputFileName)));
+            }
+
             for (String fileName : collectFileNames(inputFileNames)) {
                 System.out.println("Processing " + fileName);
                 List<RandomAccessFile> dexFiles = openInputFiles(fileName);
@@ -56,7 +65,7 @@ public class Main {
                     dexFile.close();
                 }
 
-                packageTree.output("");
+                packageTree.output(reportOutput, "");
             }
             System.out.println("Overall method count: " + DexMethodCounts.overallCount);
         } catch (UsageException ue) {
@@ -169,6 +178,8 @@ public class Main {
                 filter = Enum.valueOf(
                     DexMethodCounts.Filter.class,
                     arg.substring(arg.indexOf('=') + 1).toUpperCase());
+            } else if (arg.startsWith("--output=")) {
+                outputFileName = arg.substring(arg.indexOf('=') + 1);
             } else {
                 System.err.println("Unknown option '" + arg + "'");
                 throw new UsageException();

@@ -48,14 +48,14 @@ public class DexMethodCounts {
 
         void output(PrintStream out, String indent) {
             if (indent.length() == 0) {
-                out.println("<root>: " + count);
+                out.println("<root>, " + count);
                 overallCount += count;
             }
-            indent += "    ";
             for (String name : children.navigableKeySet()) {
                 Node child = children.get(name);
-                out.println(indent + name + ": " + child.count);
-                child.output(out, indent);
+                String childIndent = indent + "." + name;
+                out.println(childIndent + ", " + child.count);
+                child.output(out, childIndent);
             }
         }
     }
